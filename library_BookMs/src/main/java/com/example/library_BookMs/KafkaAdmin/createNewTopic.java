@@ -13,7 +13,7 @@ public class createNewTopic {
     @Bean
     public NewTopic createTopic(){
         System.out.println("------------Topic created---------");
-        return new NewTopic("BookCopies", 3,(short)1);
+        return new NewTopic("BookCopies", 1,(short)1);
     }
 
 }
