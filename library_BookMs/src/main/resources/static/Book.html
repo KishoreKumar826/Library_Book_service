@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1,
+        h2 {
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Library Management System</h1>
+        <h2>Book Module</h2>
+
+        <!-- Add a New Book -->
+        <h2>Add a New Book</h2>
+        <div class="form-group">
+            <label for="addTitle">Title</label>
+            <input type="text" id="addTitle" placeholder="Enter book title">
+            <label for="addISBN">ISBN</label>
+            <input type="number" id="addISBN" placeholder="Enter book ISBN">
+            <label for="addAuthor">Author</label>
+            <input type="text" id="addAuthor" placeholder="Enter book author">
+            <label for="addPublishDate">Published date</label>
+            <input type="text" id="addPublishDate" placeholder="DD/MM/YYYY">
+            <label for="addTotalCopies">TotalCopies</label>
+            <input type="number" id="addTotalCopies" placeholder="Enter Total Copies">
+            <button onclick="addNewBook()">Add Book</button>
+        </div>
+
+        <!-- Fetch All Books -->
+        <h2>Fetch All Books</h2>
+        <button onclick="fetchAllBooks()">Fetch All Books</button>
+        <div id="bookList" class="result"></div>
+
+        <!-- Search by ISBN -->
+        <h2>Find Book by ISBN</h2>
+        <div class="form-group">
+            <label for="searchISBN">ISBN</label>
+            <input type="number" id="searchISBN" placeholder="Enter book ISBN">
+            <button onclick="findByISBN()">Find Book</button>
+        </div>
+        <div id="searchResult" class="result"></div>
+
+        <!-- Delete a Book -->
+        <h2>Delete Book by ISBN</h2>
+        <div class="form-group">
+            <label for="deleteISBN">ISBN</label>
+            <input type="number" id="deleteISBN" placeholder="Enter book ISBN">
+            <button onclick="deleteBook()">Delete Book</button>
+        </div>
+        <div id="deleteResult" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8070'; // base url
+
+        // Add a New Book
+        async function addNewBook() {
+            const title = document.getElementById('addTitle').value;
+            const id = document.getElementById('addISBN').value;
+            const author = document.getElementById('addAuthor').value;
+            const published_Date = document.getElementById('addPublishDate').value;
+            const total_Copies = document.getElementById('addTotalCopies').value;
+            //default value is 0 initially
+            const issued_Copies = 0;
+
+            if (!title || !id || !author || !total_Copies || !published_Date) {
+                alert('Please fill all fields.');
+                return;
+            }
+
+            const book = { title, id: parseInt(id), author ,published_Date, total_Copies: parseInt(total_Copies) ,issued_Copies: parseInt(issued_Copies)};
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/addNewBook`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(book),
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    console.error('Error adding book:', error);
+                    alert('Failed to add book. Check console for details.');
+                    return;
+                }
+
+                const result = await response.json();
+                alert(`Book added: ${result.title}`);
+            } catch (err) {
+                console.error('Error:', err);
+                alert('An error occurred. Check console for details.');
+            }
+        }
+
+
+        // Fetch All Books
+        async function fetchAllBooks() {
+            const response = await fetch(`${API_BASE_URL}/fetchAllBooks`);
+            const books = await response.json();
+            const bookTableRows = books.map(book => `
+    <tr>
+        <td>${book.id}</td>
+        <td>${book.title}</td>
+        <td>${book.author}
+        <td>${book.published_Date}
+        <td>${book.total_Copies}</td>
+        <td>${book.issued_Copies}</td>
+        
+    </tr>
+`).join('');
+
+            const bookTable = `
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ISBN</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Published Date</th>
+                <th>Total Copies</th>
+                <th>Issued Copies</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            ${bookTableRows}
+        </tbody>
+    </table>
+`;
+
+            // Insert the table into the container
+        document.getElementById('bookList').innerHTML = bookTable;
+
+        }
+
+        // Find Book by ISBN
+      
+async function findByISBN() {
+    const isbn = document.getElementById('searchISBN').value;
+    if (!isbn) {
+        alert('Please enter ISBN.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/findByISBN/${isbn}`);
+        if (response.status === 404) {
+            document.getElementById('searchResult').textContent = 'Book not found.';
+            return;
+        }
+
+        const book = await response.json();
+
+        
+        const bookTable = `
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>ISBN</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Published Date</th>
+                        <th>Total Copies</th>
+                        <th>Issued Copies</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>${book.id}</td>
+                        <td>${book.title}</td>
+                        <td>${book.author}</td>
+                        <td>${book.published_Date}</td>
+                        <td>${book.total_Copies}</td>
+                        <td>${book.issued_Copies}</td>
+                    </tr>
+                </tbody>
+            </table>
+        `;
+
+        document.getElementById('searchResult').innerHTML = bookTable;
+
+    } catch (error) {
+        console.error('Error fetching the book:', error);
+        alert('An error occurred while fetching the book details.');
+    }
+}
+
+        // Delete Book by ISBN
+        async function deleteBook() {
+            const isbn = document.getElementById('deleteISBN').value;
+            if (!isbn) {
+                alert('Please enter ISBN.');
+                return;
+            }
+
+            const response = await fetch(`${API_BASE_URL}/deleteBookByISBN/${isbn}`, {
+                method: 'DELETE',
+            });
+
+            if (response.status === 404) {
+                document.getElementById('deleteResult').textContent = 'Book not found.';
+            } else {
+                document.getElementById('deleteResult').textContent = 'Book deleted successfully.';
+            }
+        }
+    </script>
+</body>
+
+</html>
