@@ -1,3 +1,31 @@
+
+/**
+ * BookController is a REST controller that handles HTTP requests for managing books in the library.
+ * It provides endpoints to add, delete, fetch, and find books by ISBN.
+ * It also includes a Kafka producer to send messages to a Kafka topic.
+ * 
+ * Endpoints:
+ * - GET /: Returns a welcome message.
+ * - GET /sentData/{message}: Sends a message to the Kafka topic "BookCopies".
+ * - GET /fetchAllBooks: Fetches all books from the repository.
+ * - GET /findByISBN/{isbn}: Finds a book by its ISBN.
+ * - DELETE /deleteBookByISBN/{isbn}: Deletes a book by its ISBN.
+ * - POST /addNewBook: Adds a new book to the repository.
+ * 
+ * Dependencies:
+ * - Repo: Repository interface for accessing book data.
+ * - KafkaTemplate: Kafka template for sending messages to Kafka topics.
+ * 
+ * Annotations:
+ * - @RestController: Indicates that this class is a REST controller.
+ * - @Autowired: Injects the required dependencies.
+ * - @GetMapping: Maps HTTP GET requests to handler methods.
+ * - @DeleteMapping: Maps HTTP DELETE requests to handler methods.
+ * - @PostMapping: Maps HTTP POST requests to handler methods.
+ * - @RequestBody: Binds the HTTP request body to a method parameter.
+ * - @PathVariable: Binds a URI template variable to a method parameter.
+ * - @ResponseBody: Indicates that the return value of a method should be used as the response body.
+ */
 package com.example.library_BookMs.Controller;
 
 import org.springframework.web.bind.annotation.RestController;
