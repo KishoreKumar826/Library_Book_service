@@ -7,14 +7,20 @@ import java.util.Date;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name="book")
 public class book {
+@NotNull(message="id should not be null")
 @Id
 private Integer id;
+@NotNull(message="title should not be null")
 private String title;
+@NotNull(message="Date should not be null")
 private String published_Date;
+@Min(value=1,message="Total copies should be atleast 1")
 private Integer total_Copies;
 private Integer issued_Copies;
 private String author;
